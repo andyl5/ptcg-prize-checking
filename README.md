@@ -1,36 +1,18 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Pokemon TCG Prize Checking
+At the start of a Pokemon TCG match, each player sets aside 6 cards known as prize cards, face down, from the top of their deck. Throughout the match, players have opportunities to look at the remaining cards in their decks, to deduce which 6 cards have been prized. This technique is known as "prize checking".
 
-## Getting Started
+This game/tool helps players practice "prize checking".
 
-First, run the development server:
+## Tech Stack
+TypeScript, React, TailwindCSS
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## How It Works
+1. Imports a decklist.
+2. The game starts. First 7 cards are drawn to the hand. Next 6 cards are set as the prize cards. Remaining 47 cards are in the deck.
+3. Player can pick which 6 cards they think are prized. Then they can check if they are correct.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Running the project locally
+1. Clone the project and navigate to that directory.
+2. Install the project dependencies `npm install`.
+3. Run the React project `npm run dev`.
+# ptcg-prize-checking
