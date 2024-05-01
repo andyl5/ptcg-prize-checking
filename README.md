@@ -4,7 +4,7 @@ At the start of a Pokemon TCG match, each player sets aside 6 cards known as pri
 This game/tool helps players practice "prize checking".
 
 ## Tech Stack
-TypeScript, React, TailwindCSS
+React, TailwindCSS, JavaScript
 
 ## How It Works
 1. Imports a decklist.
