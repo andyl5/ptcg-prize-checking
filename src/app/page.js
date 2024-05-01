@@ -1,113 +1,135 @@
-import Image from "next/image";
+'use client'
+
+import { useEffect, useState, useRef } from "react";
+import { fetchData, indexDeck, startGame, checkGuess, resetGame } from "./utils/utils";
+import ImportDeck from "./ui/ImportDeck";
+import PrizeCards from "./ui/PrizeCards";
+import HandCards from "./ui/HandCards";
+import DeckCards from "./ui/DeckCards";
+import Timer from "./ui/Timer";
+import SearchBox from "./ui/SearchBox";
 
 export default function Home() {
+
+  // user imported deck
+  const [inputDeck, setInputDeck] = useState('');
+  
+  const [initialDeck, setInitialDeck] = useState([]);
+  const [cardMap, setCardMap] = useState([]);
+  
+  const [deck, setDeck] = useState([]);
+  const [hand, setHand] = useState([]);
+  const [prizes, setPrizes] = useState([]);
+  
+  const [selectedCards, setSelectedCards] = useState([]);
+  const [uniqueIndex, setUniqueIndex] = useState(0);
+  
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchBoxRef = useRef(null);
+
+  const [isGuessCorrect, setIsGuessCorrect] = useState(null)
+  const [blurDecklist, setBlurDecklist] = useState(false)
+  
+  const handleToggleCard = (card) => {
+    if (selectedCards.length < 6) {
+      const newSelectedCard = {...card, 'index': uniqueIndex};
+      setUniqueIndex(uniqueIndex => uniqueIndex + 1);
+      setSelectedCards([...selectedCards, newSelectedCard]);
+    }
+  };
+
+  const handleRemoveCard = (indexToRemove) => {
+    setSelectedCards(selectedCards =>
+      selectedCards.filter((_, index) => index !== indexToRemove)
+    );
+  };
+
+  useEffect(() => {
+    indexDeck(cardMap, setInitialDeck);    
+  }, [cardMap]);
+
+  useEffect(() => {
+    setDeck(initialDeck);
+  }, [initialDeck]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="m-0 p-0">
+      <div className="absolute left-1/2 transform -translate-x-1/2">
+        {/* <Timer/> */}
+      </div>
+
+      <div className="absolute top-[15%] left-1/2 transform -translate-x-1/2 ">
+        <div ref={searchBoxRef}>
+          <SearchBox 
+            cards={cardMap} 
+            selectedCards={selectedCards} 
+            handleToggleCard={handleToggleCard} 
+            handleRemoveCard={handleRemoveCard} 
+            isSearchOpen={isSearchOpen} 
+            setIsSearchOpen={setIsSearchOpen}
+          />
         </div>
+        <p className={`${isGuessCorrect ? 'text-green-500' : 'text-red-500'}`}>
+          {isGuessCorrect === null ? '' : isGuessCorrect ? 'CORRECT' : 'WRONG'}
+          </p>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="absolute left-0">
+        <PrizeCards cards={prizes}/>
       </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <HandCards cards={hand} />
       </div>
-    </main>
+
+      <div className="absolute right-0">
+        <ImportDeck setInputDeck={setInputDeck} blurDecklist={blurDecklist}/>
+        <button 
+            disabled={isLoading ? true : false}
+            className="border bg-stone-400 block w-full p-2 rounded " 
+            onClick={() => fetchData(inputDeck, setCardMap, setIsLoading)}>
+                {isLoading ? 'PLEASE WAIT' : 'IMPORT DECK'}
+        </button>
+        <button 
+          onClick={() => setBlurDecklist(!blurDecklist)}
+          className="border bg-stone-400 block w-full p-2 rounded disabled:bg-stone-400/50" 
+          disabled={initialDeck.length === 0 ? true : false}
+          >
+          {blurDecklist ? 'SHOW DECKLIST': 'BLUR DECKLIST'}
+        </button>
+        <button 
+          onClick={() => {
+            resetGame(initialDeck, setDeck, setHand, setPrizes, setSelectedCards, setIsGuessCorrect)
+            startGame(initialDeck, setDeck, setHand, setPrizes)
+          }}
+          className="border bg-stone-400 block w-full p-2 rounded disabled:bg-stone-400/50" 
+          disabled={initialDeck.length === 0 ? true : false}
+        >START GAME</button>
+        <button 
+          className="border bg-stone-400 block w-full p-2 rounded disabled:bg-stone-400/50" 
+          onClick={() => checkGuess(prizes, selectedCards, setIsGuessCorrect)}
+          disabled={selectedCards.length === 0 ? true : false}
+        >CHECK GUESS</button>
+      </div>
+
+      <div className="absolute left-0 bottom-0">
+        <DeckCards cards={deck}/>
+      </div>
+    </div>
   );
 }
