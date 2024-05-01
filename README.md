@@ -15,4 +15,3 @@ TypeScript, React, TailwindCSS
 1. Clone the project and navigate to that directory.
 2. Install the project dependencies `npm install`.
 3. Run the React project `npm run dev`.
-# ptcg-prize-checking
